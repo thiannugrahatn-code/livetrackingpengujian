@@ -4,89 +4,80 @@
 <meta charset="UTF-8">
 <title>Live Tracking Pengujian</title>
 
+<!-- Font Poppins -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
 body{
-    font-family:'Poppins', sans-serif;
-    margin:0;
-    background:linear-gradient(135deg,#0f5f5c,#1b8a83);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
+  margin:0;
+  font-family:'Poppins', sans-serif;
+  background:linear-gradient(135deg,#0f5f5c,#1b8a83);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
 }
 
 .container{
-    background:#f5f7f8;
-    padding:40px;
-    border-radius:25px;
-    width:900px;
-    box-shadow:0 15px 40px rgba(0,0,0,0.2);
-    text-align:center;
+  background:#f5f7f8;
+  width:90%;
+  max-width:900px;
+  padding:40px;
+  border-radius:25px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.2);
+  text-align:center;
 }
 
 .logo{
-    width:90px;
-    margin-bottom:15px;
+  width:100px;
+  margin-bottom:15px;
 }
 
 h2{
-    margin-bottom:25px;
-    font-weight:600;
-    color:#0f5f5c;
+  color:#0f5f5c;
+  margin-bottom:25px;
 }
 
 .search-box{
-    display:flex;
-    gap:10px;
-    justify-content:center;
+  display:flex;
+  justify-content:center;
+  gap:10px;
 }
 
 input{
-    width:60%;
-    padding:12px;
-    border-radius:12px;
-    border:1px solid #ccc;
+  padding:12px;
+  width:60%;
+  border-radius:12px;
+  border:1px solid #ccc;
 }
 
 button{
-    padding:12px 25px;
-    border:none;
-    border-radius:12px;
-    background:#1b8a83;
-    color:white;
-    cursor:pointer;
-    font-weight:600;
+  padding:12px 25px;
+  border:none;
+  border-radius:12px;
+  background:#1b8a83;
+  color:white;
+  font-weight:600;
+  cursor:pointer;
 }
 
 button:hover{
-    background:#146e69;
+  background:#146e69;
 }
 
-table{
-    width:100%;
-    margin-top:30px;
-    border-collapse:collapse;
-    background:white;
-    border-radius:15px;
-    overflow:hidden;
-}
-
-th, td{
-    padding:12px;
-    border:1px solid #ddd;
-}
-
-th{
-    background:#1b8a83;
-    color:white;
+.card{
+  margin-top:30px;
+  background:white;
+  padding:25px;
+  border-radius:15px;
+  text-align:left;
+  box-shadow:0 10px 25px rgba(0,0,0,0.1);
 }
 
 .notfound{
-    margin-top:20px;
-    color:red;
-    font-weight:600;
+  margin-top:20px;
+  color:red;
+  font-weight:600;
 }
 </style>
 </head>
@@ -94,45 +85,64 @@ th{
 <body>
 
 <div class="container">
-    
-    <!-- GANTI NAMA FILE LOGO SESUAI DI REPO -->
-    <img src="logofix_bpmkp.png" class="logo">
 
-    <h2>LIVE TRACKING PENGUJIAN</h2>
+<img src="logofix_bpmkp.png" class="logo">
 
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Masukkan Nomor Permohonan">
-        <button onclick="searchData()">Cari</button>
-    </div>
+<h2>LIVE TRACKING PENGUJIAN</h2>
 
-    <div id="result"></div>
+<div class="search-box">
+  <input type="text" id="cari" placeholder="Masukkan Nomor Permintaan">
+  <button onclick="cariData()">Cari</button>
+</div>
+
+<div id="hasil"></div>
 
 </div>
 
 <script>
 
-const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHurVp3MKLNA0mvWeNfN4IH8O05dCo-kc52FtiT7f_n0cpZum9mQ1VCLNObhkm0rpkgzwFPJPrRwY_/pub?gid=0&single=true&output=csv";
+async function cariData(){
 
-async function searchData(){
-    const keyword = document.getElementById("searchInput").value.trim();
-    const response = await fetch(csvUrl);
-    const data = await response.text();
+  const keyword = document.getElementById("cari").value.trim();
+  const hasil = document.getElementById("hasil");
 
-    const rows = data.split("\n").map(row => row.split(","));
-    const headers = rows[0];
+  if(keyword === ""){
+    hasil.innerHTML = "<div class='notfound'>Masukkan nomor permintaan dulu.</div>";
+    return;
+  }
 
-    let found = rows.find((row,index)=> index>0 && row.includes(keyword));
+  const response = await fetch("LINK_CSV_KAMU");
+  const data = await response.text();
 
-    if(found){
-        let table = "<table><tr>";
-        headers.forEach(h => table += `<th>${h}</th>`);
-        table += "</tr><tr>";
-        found.forEach(col => table += `<td>${col}</td>`);
-        table += "</tr></table>";
-        document.getElementById("result").innerHTML = table;
-    } else {
-        document.getElementById("result").innerHTML = "<div class='notfound'>Data tidak ditemukan</div>";
+  const rows = data.split("\n").slice(1);
+
+  let ditemukan = false;
+
+  rows.forEach(row => {
+
+    const kolom = row.split(",");
+
+    if(kolom[2] && kolom[2].trim() === keyword){
+
+      hasil.innerHTML = `
+      <div class="card">
+        <p><b>Nama Pelanggan:</b> ${kolom[0]}</p>
+        <p><b>Nomor Permintaan:</b> ${kolom[2]}</p>
+        <p><b>Jenis Pengujian:</b> ${kolom[3]}</p>
+        <p><b>Estimasi Selesai:</b> ${kolom[11]}</p>
+        <p><b>Keterangan:</b> ${kolom[12]}</p>
+      </div>
+      `;
+
+      ditemukan = true;
     }
+
+  });
+
+  if(!ditemukan){
+    hasil.innerHTML = "<div class='notfound'>Data tidak ditemukan.</div>";
+  }
+
 }
 
 </script>
