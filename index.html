@@ -1,17 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Live Tracking Pengujian</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tracking Permintaan Pengujian</title>
 
-<!-- Font Poppins -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
-body{
+*{
   margin:0;
+  padding:0;
+  box-sizing:border-box;
   font-family:'Poppins', sans-serif;
-  background:linear-gradient(135deg,#0f5f5c,#1b8a83);
+}
+
+body{
+  background: linear-gradient(135deg, #0b5394, #073763);
   display:flex;
   justify-content:center;
   align-items:center;
@@ -19,65 +25,91 @@ body{
 }
 
 .container{
-  background:#f5f7f8;
-  width:90%;
-  max-width:900px;
+  background:white;
   padding:40px;
-  border-radius:25px;
-  box-shadow:0 15px 40px rgba(0,0,0,0.2);
+  border-radius:18px;
+  width:95%;
+  max-width:1000px;
+  box-shadow:0 15px 35px rgba(0,0,0,0.2);
   text-align:center;
 }
 
 .logo{
-  width:100px;
+  width:110px;
   margin-bottom:15px;
 }
 
 h2{
-  color:#0f5f5c;
+  color:#0b5394;
   margin-bottom:25px;
+  font-weight:600;
 }
 
 .search-box{
-  display:flex;
-  justify-content:center;
-  gap:10px;
+  margin-bottom:25px;
 }
 
 input{
-  padding:12px;
-  width:60%;
-  border-radius:12px;
+  padding:12px 15px;
+  width:65%;
+  border-radius:30px;
   border:1px solid #ccc;
+  outline:none;
+  font-size:14px;
+  transition:0.3s;
+}
+
+input:focus{
+  border-color:#0b5394;
+  box-shadow:0 0 5px rgba(11,83,148,0.3);
 }
 
 button{
   padding:12px 25px;
   border:none;
-  border-radius:12px;
-  background:#1b8a83;
+  border-radius:30px;
+  background:#0b5394;
   color:white;
-  font-weight:600;
+  font-weight:500;
   cursor:pointer;
+  transition:0.3s;
+  margin-left:10px;
 }
 
 button:hover{
-  background:#146e69;
+  background:#073763;
+  transform:scale(1.05);
 }
 
-.card{
-  margin-top:30px;
-  background:white;
-  padding:25px;
-  border-radius:15px;
-  text-align:left;
-  box-shadow:0 10px 25px rgba(0,0,0,0.1);
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+th{
+  background:#0b5394;
+  color:white;
+  padding:12px;
+  font-size:14px;
+}
+
+td{
+  padding:12px;
+  border-bottom:1px solid #eee;
+  font-size:13px;
+}
+
+tr:hover{
+  background:#f2f6fb;
 }
 
 .notfound{
   margin-top:20px;
   color:red;
-  font-weight:600;
+  font-weight:500;
 }
 </style>
 </head>
@@ -86,65 +118,82 @@ button:hover{
 
 <div class="container">
 
-<img src="logofix_bpmkp.png" class="logo">
+<img src="logofix_bpmkp.png" class="logo" alt="Logo BPMKP">
 
-<h2>LIVE TRACKING PENGUJIAN</h2>
+<h2>Tracking Status Permintaan Pengujian</h2>
 
 <div class="search-box">
-  <input type="text" id="cari" placeholder="Masukkan Nomor Permintaan">
-  <button onclick="cariData()">Cari</button>
+<input type="text" id="searchInput" placeholder="Masukkan Nomor Permintaan">
+<button onclick="searchData()">Cari</button>
 </div>
 
-<div id="hasil"></div>
+<div id="result"></div>
 
 </div>
 
 <script>
+async function searchData(){
 
-async function cariData(){
+const keyword = document.getElementById("searchInput").value.trim();
 
-  const keyword = document.getElementById("cari").value.trim();
-  const hasil = document.getElementById("hasil");
-
-  if(keyword === ""){
-    hasil.innerHTML = "<div class='notfound'>Masukkan nomor permintaan dulu.</div>";
-    return;
-  }
-
-  const response = await fetch("LINK_CSV_KAMU");
-  const data = await response.text();
-
-  const rows = data.split("\n").slice(1);
-
-  let ditemukan = false;
-
-  rows.forEach(row => {
-
-    const kolom = row.split(",");
-
-    if(kolom[2] && kolom[2].trim() === keyword){
-
-      hasil.innerHTML = `
-      <div class="card">
-        <p><b>Nama Pelanggan:</b> ${kolom[0]}</p>
-        <p><b>Nomor Permintaan:</b> ${kolom[2]}</p>
-        <p><b>Jenis Pengujian:</b> ${kolom[3]}</p>
-        <p><b>Estimasi Selesai:</b> ${kolom[11]}</p>
-        <p><b>Keterangan:</b> ${kolom[12]}</p>
-      </div>
-      `;
-
-      ditemukan = true;
-    }
-
-  });
-
-  if(!ditemukan){
-    hasil.innerHTML = "<div class='notfound'>Data tidak ditemukan.</div>";
-  }
-
+if(keyword === ""){
+  alert("Masukkan Nomor Permintaan terlebih dahulu");
+  return;
 }
 
+const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHurVp3MKLNA0mvWeNfN4IH8O05dCo-kc52FtiT7f_n0cpZum9mQ1VCLNObhkm0rpkgzwFPJPrRwY_/pub?gid=0&single=true&output=csv";
+
+const response = await fetch(url);
+const data = await response.text();
+
+const rows = data.split(/\r?\n/).map(row =>
+  row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g)
+);
+
+let found = false;
+let html = "";
+
+for(let i=1;i<rows.length;i++){
+
+  if(!rows[i]) continue;
+
+  const nomorPermintaan = rows[i][2]?.replace(/"/g,"").trim();
+
+  if(nomorPermintaan === keyword){
+
+    found = true;
+
+    html = `
+    <table>
+      <tr>
+        <th>NAMA PELANGGAN</th>
+        <th>JENIS PELAYANAN</th>
+        <th>NOMOR PERMINTAAN</th>
+        <th>JENIS PENGUJIAN</th>
+        <th>ESTIMASI SELESAI</th>
+        <th>KETERANGAN</th>
+      </tr>
+      <tr>
+        <td>${rows[i][0]?.replace(/"/g,"")}</td>
+        <td>${rows[i][1]?.replace(/"/g,"")}</td>
+        <td>${rows[i][2]?.replace(/"/g,"")}</td>
+        <td>${rows[i][3]?.replace(/"/g,"")}</td>
+        <td>${rows[i][11]?.replace(/"/g,"")}</td>
+        <td>${rows[i][12]?.replace(/"/g,"")}</td>
+      </tr>
+    </table>
+    `;
+    break;
+  }
+}
+
+if(!found){
+  html = "<div class='notfound'>Data tidak ditemukan</div>";
+}
+
+document.getElementById("result").innerHTML = html;
+
+}
 </script>
 
 </body>
