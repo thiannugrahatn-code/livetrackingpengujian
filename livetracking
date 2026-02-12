@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIVETRACKING SAMPEL</title>
+
+<style>
+body {
+  margin:0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg,#0c8f5f,#1b5e20);
+  color:#333;
+}
+
+.container{
+  max-width:1100px;
+  margin:40px auto;
+  background:#ffffff;
+  padding:30px;
+  border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+}
+
+.header{
+  text-align:center;
+  margin-bottom:25px;
+}
+
+.header img{
+  width:120px;
+  margin-bottom:15px;
+}
+
+.header h1{
+  font-size:20px;
+  color:#0c8f5f;
+}
+
+.search-box{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+.search-box input{
+  width:60%;
+  padding:12px;
+  border-radius:8px;
+  border:2px solid #0c8f5f;
+  font-size:16px;
+}
+
+button{
+  padding:12px 18px;
+  border:none;
+  background:#f4c20d;
+  color:#000;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#ddb100;
+}
+
+.table-container{
+  overflow-x:auto;
+  margin-top:20px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
+
+th{
+  background:#0c8f5f;
+  color:white;
+  padding:10px;
+}
+
+td{
+  padding:8px;
+  border-bottom:1px solid #ddd;
+}
+
+tr:nth-child(even){
+  background:#f9f9f9;
+}
+
+.notfound{
+  text-align:center;
+  color:red;
+  font-weight:bold;
+  margin-top:15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="header">
+    <img src="logo.png" alt="Logo">
+    <h1>LIVETRACKING SAMPEL UPTD BALAI PENGUJIAN MUTU DAN KEAMANAN PAKAN/BAHAN PAKAN CIKOLE LEMBANG</h1>
+  </div>
+
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Masukkan Nomor Permintaan">
+    <button onclick="searchData()">Cari</button>
+  </div>
+
+  <div class="table-container" id="result"></div>
+  <div class="notfound" id="notfound"></div>
+</div>
+
+<script>
+
+// GANTI DENGAN LINK CSV PUBLISH KAMU
+const sheetURL = "PASTE_LINK_CSV_DI_SINI";
+
+let sheetData = [];
+
+async function loadData(){
+  const response = await fetch(sheetURL);
+  const data = await response.text();
+  const rows = data.split("\n").map(r => r.split(","));
+  const headers = rows[0];
+
+  for(let i=1;i<rows.length;i++){
+    let obj = {};
+    headers.forEach((h,index)=>{
+      obj[h.trim()] = rows[i][index];
+    });
+    sheetData.push(obj);
+  }
+}
+
+function searchData(){
+  const input = document.getElementById("searchInput").value.trim();
+  const resultDiv = document.getElementById("result");
+  const notfoundDiv = document.getElementById("notfound");
+
+  resultDiv.innerHTML = "";
+  notfoundDiv.innerHTML = "";
+
+  const found = sheetData.filter(row => row["NOMOR PERMINTAAN"] === input);
+
+  if(found.length === 0){
+    notfoundDiv.innerHTML = "Data tidak ditemukan";
+    return;
+  }
+
+  let table = "<table><tr>";
+
+  const columns = [
+    "NAMA PELANGGAN",
+    "JENIS PELAYANAN",
+    "NOMOR PERMINTAAN",
+    "JENIS PENGUJIAN",
+    "PEMBAYARAN",
+    "PENYIAPAN SAMPEL",
+    "PENGUJIAN",
+    "SUBKONTRAK",
+    "PEMBUATAN LHP/SERTIFIKAT",
+    "LHP/SERTIFIKAT TERBIT",
+    "TGL TERBIT LHP/SERTIFIKAT",
+    "ESTIMASI SELESAI",
+    "KETERANGAN"
+  ];
+
+  columns.forEach(col=>{
+    table += `<th>${col}</th>`;
+  });
+
+  table += "</tr>";
+
+  found.forEach(row=>{
+    table += "<tr>";
+    columns.forEach(col=>{
+      table += `<td>${row[col] || "-"}</td>`;
+    });
+    table += "</tr>";
+  });
+
+  table += "</table>";
+
+  resultDiv.innerHTML = table;
+}
+
+loadData();
+</script>
+
+</body>
+</html>
