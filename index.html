@@ -5,99 +5,92 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Live Tracking Pengujian</title>
 
-<!-- Google Font Poppins -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- Font Poppins -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
 body{
+    font-family: 'Poppins', sans-serif;
     margin:0;
-    font-family:'Poppins', sans-serif;
-    background: linear-gradient(135deg,#0f2027,#2c5364,#00b09b);
-    background-size: 400% 400%;
-    animation: gradientBG 12s ease infinite;
-}
-
-@keyframes gradientBG {
-    0% {background-position: 0% 50%;}
-    50% {background-position: 100% 50%;}
-    100% {background-position: 0% 50%;}
+    padding:0;
+    background: linear-gradient(135deg,#1e3c72,#2a5298);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
 }
 
 .container{
-    max-width:900px;
-    margin:70px auto;
-    background:white;
-    padding:50px;
+    background:#ffffff;
+    width:95%;
+    max-width:1100px;
+    padding:30px;
     border-radius:20px;
-    box-shadow:0 25px 60px rgba(0,0,0,0.25);
-    text-align:center;
-}
-
-.logo{
-    width:130px;
-    margin-bottom:15px;
+    box-shadow:0 20px 40px rgba(0,0,0,0.2);
 }
 
 h1{
-    color:#0f2027;
-    font-size:20px;
-    font-weight:600;
-    line-height:1.6;
+    text-align:center;
+    color:#1e3c72;
+    margin-bottom:25px;
+}
+
+.search-box{
+    display:flex;
+    gap:10px;
+    margin-bottom:25px;
 }
 
 input{
-    width:65%;
-    padding:14px;
+    flex:1;
+    padding:12px;
     border-radius:10px;
-    border:2px solid #ddd;
+    border:1px solid #ccc;
     font-size:16px;
-    font-family:'Poppins', sans-serif;
-    transition:0.3s;
-}
-
-input:focus{
-    border-color:#00b09b;
-    outline:none;
-    box-shadow:0 0 10px rgba(0,176,155,0.3);
 }
 
 button{
-    padding:14px 25px;
+    padding:12px 20px;
     border:none;
-    background:linear-gradient(135deg,#00b09b,#96c93d);
-    color:white;
     border-radius:10px;
-    cursor:pointer;
+    background:#1e3c72;
+    color:white;
     font-weight:600;
-    font-family:'Poppins', sans-serif;
+    cursor:pointer;
     transition:0.3s;
 }
 
 button:hover{
-    transform:translateY(-2px);
-    box-shadow:0 8px 20px rgba(0,0,0,0.2);
+    background:#16325c;
 }
 
-.result{
-    margin-top:35px;
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+    font-size:14px;
+}
+
+th, td{
+    border:1px solid #ddd;
+    padding:10px;
     text-align:left;
 }
 
-.card{
-    background:#f9f9f9;
-    padding:25px;
-    border-radius:15px;
-    margin-top:15px;
-    border-left:6px solid #00b09b;
-    box-shadow:0 10px 25px rgba(0,0,0,0.1);
-    font-size:15px;
+th{
+    background:#1e3c72;
+    color:white;
+}
+
+tr:nth-child(even){
+    background:#f2f2f2;
 }
 
 .error{
-    color:#d63031;
-    font-weight:600;
     text-align:center;
-    margin-top:20px;
+    color:red;
+    font-weight:600;
+    margin-top:10px;
 }
 </style>
 </head>
@@ -105,21 +98,14 @@ button:hover{
 <body>
 
 <div class="container">
+    <h1>Live Tracking Pengujian</h1>
 
-<img src="logofix_bpmkp.png" class="logo">
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Masukkan Nomor Permintaan">
+        <button onclick="searchData()">Cari</button>
+    </div>
 
-<h1>
-LIVETRACKING SAMPEL <br>
-UPTD BALAI PENGUJIAN MUTU DAN KEAMANAN PAKAN/BAHAN PAKAN CIKOLE LEMBANG
-</h1>
-
-<br>
-
-<input type="text" id="searchInput" placeholder="Masukkan Nomor Permohonan">
-<button onclick="searchData()">Cari</button>
-
-<div class="result" id="result"></div>
-
+    <div id="result"></div>
 </div>
 
 <script>
@@ -140,23 +126,72 @@ function searchData(){
     resultDiv.innerHTML = "";
 
     if(input === ""){
-        resultDiv.innerHTML = "<div class='error'>Masukkan nomor terlebih dahulu</div>";
+        resultDiv.innerHTML = "<div class='error'>Masukkan nomor permintaan terlebih dahulu</div>";
         return;
     }
 
     let found = false;
 
     for(let i=1; i<sheetData.length; i++){
-        if(sheetData[i][0] === input){
+        if(sheetData[i][2] === input){
+
             found = true;
 
             resultDiv.innerHTML = `
-            <div class="card">
-                <strong>Nomor Permohonan:</strong> ${sheetData[i][0]} <br><br>
-                <strong>Nama Pemohon:</strong> ${sheetData[i][1]} <br><br>
-                <strong>Status:</strong> ${sheetData[i][2]} <br><br>
-                <strong>Keterangan:</strong> ${sheetData[i][3]}
-            </div>
+            <table>
+                <tr>
+                    <th>Nama Pelanggan</th>
+                    <td>${sheetData[i][0]}</td>
+                </tr>
+                <tr>
+                    <th>Jenis Pelayanan</th>
+                    <td>${sheetData[i][1]}</td>
+                </tr>
+                <tr>
+                    <th>Nomor Permintaan</th>
+                    <td>${sheetData[i][2]}</td>
+                </tr>
+                <tr>
+                    <th>Jenis Pengujian</th>
+                    <td>${sheetData[i][3]}</td>
+                </tr>
+                <tr>
+                    <th>Pembayaran</th>
+                    <td>${sheetData[i][4]}</td>
+                </tr>
+                <tr>
+                    <th>Penyiapan Sampel</th>
+                    <td>${sheetData[i][5]}</td>
+                </tr>
+                <tr>
+                    <th>Pengujian</th>
+                    <td>${sheetData[i][6]}</td>
+                </tr>
+                <tr>
+                    <th>Subkontrak</th>
+                    <td>${sheetData[i][7]}</td>
+                </tr>
+                <tr>
+                    <th>Pembuatan LHP/Sertifikat</th>
+                    <td>${sheetData[i][8]}</td>
+                </tr>
+                <tr>
+                    <th>LHP/Sertifikat Terbit</th>
+                    <td>${sheetData[i][9]}</td>
+                </tr>
+                <tr>
+                    <th>Tgl Terbit</th>
+                    <td>${sheetData[i][10]}</td>
+                </tr>
+                <tr>
+                    <th>Estimasi Selesai</th>
+                    <td>${sheetData[i][11]}</td>
+                </tr>
+                <tr>
+                    <th>Keterangan</th>
+                    <td>${sheetData[i][12]}</td>
+                </tr>
+            </table>
             `;
             break;
         }
