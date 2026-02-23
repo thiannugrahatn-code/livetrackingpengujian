@@ -152,7 +152,7 @@ for(let i=1;i<rows.length;i++){
 
   const nomorPermintaan = rows[i][5]?.replace(/"/g,"").trim().toLowerCase();
 
-  if(nomorPermintaan === keyword){
+  if(nomorPermintaan == keyword){
 
     found = true;
 
@@ -176,18 +176,18 @@ for(let i=1;i<rows.length;i++){
       </tr>
       <tr>
         <td>${rows[i][1]?.replace(/"/g,"")}</td>
-        <td>${rows[i][2]?.replace(/"/g,"")}</td>
-        <td>${rows[i][3]?.replace(/"/g,"")}</td>
-        <td>${rows[i][4]?.replace(/"/g,"")}</td>
-        <td>${rows[i][8]?.replace(/"/g,"")}</td>
-        <td>${rows[i][9]?.replace(/"/g,"")}</td>
-        <td>${rows[i][10]?.replace(/"/g,"")}</td>
+        <td>${rows[i][5]?.replace(/"/g,"")}</td>
+        <td>${rows[i][6]?.replace(/"/g,"")}</td>
+        <td>${rows[i][7]?.replace(/"/g,"")}</td>
         <td>${rows[i][11]?.replace(/"/g,"")}</td>
         <td>${rows[i][12]?.replace(/"/g,"")}</td>
         <td>${rows[i][13]?.replace(/"/g,"")}</td>
         <td>${rows[i][14]?.replace(/"/g,"")}</td>
         <td>${rows[i][15]?.replace(/"/g,"")}</td>
+        <td>${rows[i][16]?.replace(/"/g,"")}</td>
+        <td>${rows[i][17]?.replace(/"/g,"")}</td>
         <td>${rows[i][18]?.replace(/"/g,"")}</td>
+        <td>${rows[i][21]?.replace(/"/g,"")}</td>
       </tr>
     </table>
     </div>
