@@ -3,11 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tracking Permintaan Pengujian</title>
+
+<title>Tracking Status Permintaan Pengujian</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
+
 *{
   margin:0;
   padding:0;
@@ -16,33 +18,32 @@
 }
 
 body{
-  background: linear-gradient(135deg, #0b5394, #073763);
+  background: linear-gradient(135deg,#0b5394,#073763);
+  min-height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
-  min-height:100vh;
   padding:20px;
 }
 
 .container{
   background:white;
-  padding:40px;
-  border-radius:20px;
   width:100%;
   max-width:1200px;
+  padding:40px;
+  border-radius:20px;
   box-shadow:0 20px 40px rgba(0,0,0,0.2);
   text-align:center;
 }
 
 .logo{
   width:110px;
-  margin-bottom:15px;
+  margin-bottom:10px;
 }
 
 h2{
   color:#0b5394;
   margin-bottom:25px;
-  font-weight:600;
 }
 
 .search-box{
@@ -55,7 +56,6 @@ input{
   border-radius:40px;
   border:1px solid #ccc;
   outline:none;
-  font-size:14px;
 }
 
 button{
@@ -64,7 +64,6 @@ button{
   border-radius:40px;
   background:#0b5394;
   color:white;
-  font-weight:500;
   cursor:pointer;
   margin-left:10px;
 }
@@ -100,10 +99,25 @@ tr:hover{
 }
 
 .notfound{
-  margin-top:20px;
   color:red;
+  margin-top:20px;
   font-weight:500;
 }
+
+/* STATUS WARNA */
+
+.badge{
+  padding:5px 10px;
+  border-radius:12px;
+  color:white;
+  font-size:12px;
+}
+
+.onhold{background:#c0392b;}
+.proses{background:#f39c12;}
+.selesai{background:#27ae60;}
+.belum{background:#7f8c8d;}
+
 </style>
 </head>
 
@@ -116,7 +130,7 @@ tr:hover{
 <h2>Tracking Status Permintaan Pengujian</h2>
 
 <div class="search-box">
-<input type="text" id="searchInput" placeholder="Masukkan Nomor Permintaan">
+<input type="text" id="searchInput" placeholder="Masukkan Nomor Permintaan / Nama Pelanggan">
 <button onclick="searchData()">Cari</button>
 </div>
 
@@ -124,13 +138,32 @@ tr:hover{
 
 </div>
 
+
 <script>
+
+function statusBadge(text){
+
+if(!text) return "";
+
+text = text.toLowerCase();
+
+let cls = "belum";
+
+if(text.includes("hold")) cls="onhold";
+else if(text.includes("proses")) cls="proses";
+else if(text.includes("selesai")) cls="selesai";
+
+return `<span class="badge ${cls}">${text}</span>`;
+}
+
+
+
 async function searchData(){
 
 const keyword = document.getElementById("searchInput").value.trim().toLowerCase();
 
 if(keyword === ""){
-  alert("Masukkan Nomor Permintaan terlebih dahulu");
+  alert("Masukkan kata pencarian");
   return;
 }
 
@@ -140,69 +173,76 @@ const response = await fetch(url);
 const data = await response.text();
 
 const rows = data.split(/\r?\n/).map(row =>
-  row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g)
+  row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)
 );
 
-let found = false;
 let html = "";
+let found = false;
 
 for(let i=1;i<rows.length;i++){
 
-  if(!rows[i]) continue;
+if(!rows[i]) continue;
 
-  const nomorPermintaan = rows[i][2]?.replace(/"/g,"").trim().toLowerCase();
+let nama = rows[i][1]?.replace(/"/g,"").toLowerCase();
+let nomor = rows[i][2]?.replace(/"/g,"").toLowerCase();
 
-  if(nomorPermintaan === keyword){
+if(
+  (nama && nama.includes(keyword)) ||
+  (nomor && nomor.includes(keyword))
+){
 
-    found = true;
+found = true;
 
-    html = `
-    <div class="table-wrapper">
-    <table>
-      <tr>
-        <th>NAMA PELANGGAN</th>
-        <th>NOMOR PERMINTAAN</th>
-        <th>JUMLAH SAMPEL</th>
-        <th>JENIS PENGUJIAN</th>
-        <th>TGL BAYAR</th>
-        <th>PENYIAPAN</th>
-        <th>PENGUJIAN</th>
-        <th>SUBKONTRAK</th>
-        <th>PEMBUATAN LHP</th>
-        <th>LHP TERBIT</th>
-        <th>TGL TERBIT</th>
-        <th>ESTIMASI</th>
-        <th>KETERANGAN</th>
-      </tr>
-      <tr>
-        <td>${rows[i][1]?.replace(/"/g,"")}</td>
-        <td>${rows[i][2]?.replace(/"/g,"")}</td>
-        <td>${rows[i][3]?.replace(/"/g,"")}</td>
-        <td>${rows[i][4]?.replace(/"/g,"")}</td>
-        <td>${rows[i][8]?.replace(/"/g,"")}</td>
-        <td>${rows[i][9]?.replace(/"/g,"")}</td>
-        <td>${rows[i][10]?.replace(/"/g,"")}</td>
-        <td>${rows[i][11]?.replace(/"/g,"")}</td>
-        <td>${rows[i][12]?.replace(/"/g,"")}</td>
-        <td>${rows[i][13]?.replace(/"/g,"")}</td>
-        <td>${rows[i][14]?.replace(/"/g,"")}</td>
-        <td>${rows[i][15]?.replace(/"/g,"")}</td>
-        <td>${rows[i][18]?.replace(/"/g,"")}</td>
-      </tr>
-    </table>
-    </div>
-    `;
-    break;
-  }
+html += `
+<div class="table-wrapper">
+<table>
+<tr>
+<th>NAMA PELANGGAN</th>
+<th>NOMOR</th>
+<th>JUMLAH</th>
+<th>JENIS</th>
+<th>TGL BAYAR</th>
+<th>PENYIAPAN</th>
+<th>PENGUJIAN</th>
+<th>SUBKONTRAK</th>
+<th>PEMBUATAN LHP</th>
+<th>LHP TERBIT</th>
+<th>TGL TERBIT</th>
+<th>ESTIMASI</th>
+<th>KETERANGAN</th>
+</tr>
+
+<tr>
+<td>${rows[i][1]||""}</td>
+<td>${rows[i][2]||""}</td>
+<td>${rows[i][3]||""}</td>
+<td>${rows[i][4]||""}</td>
+<td>${rows[i][8]||""}</td>
+<td>${statusBadge(rows[i][9])}</td>
+<td>${statusBadge(rows[i][10])}</td>
+<td>${statusBadge(rows[i][11])}</td>
+<td>${statusBadge(rows[i][12])}</td>
+<td>${statusBadge(rows[i][13])}</td>
+<td>${rows[i][14]||""}</td>
+<td>${rows[i][15]||""}</td>
+<td>${rows[i][18]||""}</td>
+</tr>
+</table>
+</div>
+`;
+
+}
+
 }
 
 if(!found){
-  html = "<div class='notfound'>Data tidak ditemukan</div>";
+html = "<div class='notfound'>Data tidak ditemukan</div>";
 }
 
 document.getElementById("result").innerHTML = html;
 
 }
+
 </script>
 
 </body>
