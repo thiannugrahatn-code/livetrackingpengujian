@@ -29,7 +29,7 @@ body{
   padding:40px;
   border-radius:20px;
   width:100%;
-  max-width:1300px;
+  max-width:1200px;
   box-shadow:0 20px 40px rgba(0,0,0,0.2);
   text-align:center;
 }
@@ -56,12 +56,6 @@ input{
   border:1px solid #ccc;
   outline:none;
   font-size:14px;
-  transition:0.3s;
-}
-
-input:focus{
-  border-color:#0b5394;
-  box-shadow:0 0 8px rgba(11,83,148,0.3);
 }
 
 button{
@@ -72,13 +66,11 @@ button{
   color:white;
   font-weight:500;
   cursor:pointer;
-  transition:0.3s;
   margin-left:10px;
 }
 
 button:hover{
   background:#073763;
-  transform:scale(1.05);
 }
 
 .table-wrapper{
@@ -96,7 +88,6 @@ th{
   background:#0b5394;
   color:white;
   padding:12px;
-  text-align:left;
 }
 
 td{
@@ -120,7 +111,7 @@ tr:hover{
 
 <div class="container">
 
-<img src="logofix_bpmkp.png" class="logo" alt="Logo BPMKP">
+<img src="logofix_bpmkp.png" class="logo">
 
 <h2>Tracking Status Permintaan Pengujian</h2>
 
@@ -134,7 +125,6 @@ tr:hover{
 </div>
 
 <script>
-
 async function searchData(){
 
 const keyword = document.getElementById("searchInput").value.trim().toLowerCase();
@@ -146,13 +136,11 @@ if(keyword === ""){
 
 const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHurVp3MKLNA0mvWeNfN4IH8O05dCo-kc52FtiT7f_n0cpZum9mQ1VCLNObhkm0rpkgzwFPJPrRwY_/pub?gid=0&single=true&output=csv";
 
-try{
-
 const response = await fetch(url);
 const data = await response.text();
 
 const rows = data.split(/\r?\n/).map(row =>
-  row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)
+  row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g)
 );
 
 let found = false;
@@ -177,29 +165,29 @@ for(let i=1;i<rows.length;i++){
         <th>JUMLAH SAMPEL</th>
         <th>JENIS PENGUJIAN</th>
         <th>TGL BAYAR</th>
-        <th>PENYIAPAN SAMPEL</th>
+        <th>PENYIAPAN</th>
         <th>PENGUJIAN</th>
         <th>SUBKONTRAK</th>
         <th>PEMBUATAN LHP</th>
         <th>LHP TERBIT</th>
         <th>TGL TERBIT</th>
-        <th>ESTIMASI SELESAI</th>
+        <th>ESTIMASI</th>
         <th>KETERANGAN</th>
       </tr>
       <tr>
-        <td>${rows[i][1]?.replace(/"/g,"") || "-"}</td>
-        <td>${rows[i][2]?.replace(/"/g,"") || "-"}</td>
-        <td>${rows[i][3]?.replace(/"/g,"") || "-"}</td>
-        <td>${rows[i][4]?.replace(/"/g,"") || "-"}</td>
-        <td>${rows[i][8]?.replace(/"/g,"") || "-"}</td>
-        <td>${rows[i][9]?.replace(/"/g,"") || "-"}</td>
-        <td>${rows[i][10]?.replace(/"/g,"") || "-"}</td>
-        <td>${rows[i][11]?.replace(/"/g,"") || "-"}</td>
-        <td>${rows[i][12]?.replace(/"/g,"") || "-"}</td>
-        <td>${rows[i][13]?.replace(/"/g,"") || "-"}</td>
-        <td>${rows[i][14]?.replace(/"/g,"") || "-"}</td>
-        <td>${rows[i][15]?.replace(/"/g,"") || "-"}</td>
-        <td>${rows[i][18]?.replace(/"/g,"") || "-"}</td>
+        <td>${rows[i][1]?.replace(/"/g,"")}</td>
+        <td>${rows[i][2]?.replace(/"/g,"")}</td>
+        <td>${rows[i][3]?.replace(/"/g,"")}</td>
+        <td>${rows[i][4]?.replace(/"/g,"")}</td>
+        <td>${rows[i][8]?.replace(/"/g,"")}</td>
+        <td>${rows[i][9]?.replace(/"/g,"")}</td>
+        <td>${rows[i][10]?.replace(/"/g,"")}</td>
+        <td>${rows[i][11]?.replace(/"/g,"")}</td>
+        <td>${rows[i][12]?.replace(/"/g,"")}</td>
+        <td>${rows[i][13]?.replace(/"/g,"")}</td>
+        <td>${rows[i][14]?.replace(/"/g,"")}</td>
+        <td>${rows[i][15]?.replace(/"/g,"")}</td>
+        <td>${rows[i][18]?.replace(/"/g,"")}</td>
       </tr>
     </table>
     </div>
@@ -214,13 +202,7 @@ if(!found){
 
 document.getElementById("result").innerHTML = html;
 
-}catch(error){
-  document.getElementById("result").innerHTML =
-  "<div class='notfound'>Gagal mengambil data. Pastikan CSV sudah dipublish.</div>";
 }
-
-}
-
 </script>
 
 </body>
