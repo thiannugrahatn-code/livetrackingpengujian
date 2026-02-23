@@ -6,104 +6,57 @@
 <title>Tracking Permintaan Pengujian</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:'Poppins', sans-serif;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 
 body{
   background: linear-gradient(135deg, #0b5394, #073763);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  padding:20px;
+  display:flex;justify-content:center;align-items:center;
+  min-height:100vh;padding:20px;
 }
 
 .container{
-  background:white;
-  padding:40px;
-  border-radius:20px;
-  width:100%;
-  max-width:1200px;
+  background:white;padding:40px;border-radius:20px;
+  width:100%;max-width:1200px;
   box-shadow:0 20px 40px rgba(0,0,0,0.2);
   text-align:center;
 }
 
-.logo{
-  width:110px;
-  margin-bottom:15px;
-}
+.logo{width:110px;margin-bottom:15px;}
 
-h2{
-  color:#0b5394;
-  margin-bottom:25px;
-  font-weight:600;
-}
+h2{color:#0b5394;margin-bottom:25px;font-weight:600;}
 
-.search-box{
-  margin-bottom:30px;
-}
+.search-box{margin-bottom:30px;}
 
 input{
-  padding:14px 20px;
-  width:60%;
-  border-radius:40px;
-  border:1px solid #ccc;
-  outline:none;
-  font-size:14px;
+  padding:14px 20px;width:60%;
+  border-radius:40px;border:1px solid #ccc;
+  outline:none;font-size:14px;
 }
 
 button{
-  padding:14px 30px;
-  border:none;
-  border-radius:40px;
-  background:#0b5394;
-  color:white;
-  font-weight:500;
-  cursor:pointer;
-  margin-left:10px;
+  padding:14px 30px;border:none;border-radius:40px;
+  background:#0b5394;color:white;font-weight:500;
+  cursor:pointer;margin-left:10px;
 }
 
-button:hover{
-  background:#073763;
-}
+button:hover{background:#073763;}
 
-.table-wrapper{
-  overflow-x:auto;
-}
+.table-wrapper{overflow-x:auto;}
 
 table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:20px;
-  font-size:13px;
+  width:100%;border-collapse:collapse;
+  margin-top:20px;font-size:13px;
 }
 
-th{
-  background:#0b5394;
-  color:white;
-  padding:12px;
-}
+th{background:#0b5394;color:white;padding:12px;}
+td{padding:10px;border-bottom:1px solid #eee;}
+tr:hover{background:#f2f6fb;}
 
-td{
-  padding:10px;
-  border-bottom:1px solid #eee;
-}
-
-tr:hover{
-  background:#f2f6fb;
-}
-
-.notfound{
-  margin-top:20px;
-  color:red;
-  font-weight:500;
-}
+.notfound{margin-top:20px;color:red;font-weight:500;}
+.loading{margin-top:20px;color:#0b5394;font-weight:500;}
 </style>
 </head>
 
@@ -112,7 +65,6 @@ tr:hover{
 <div class="container">
 
 <img src="logofix_bpmkp.png" class="logo">
-
 <h2>Tracking Status Permintaan Pengujian</h2>
 
 <div class="search-box">
@@ -125,6 +77,14 @@ tr:hover{
 </div>
 
 <script>
+
+const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHurVp3MKLNA0mvWeNfN4IH8O05dCo-kc52FtiT7f_n0cpZum9mQ1VCLNObhkm0rpkgzwFPJPrRwY_/pub?gid=0&single=true&output=csv";
+
+// tekan ENTER untuk cari
+document.getElementById("searchInput").addEventListener("keypress", function(e){
+  if(e.key === "Enter") searchData();
+});
+
 async function searchData(){
 
 const keyword = document.getElementById("searchInput").value.trim().toLowerCase();
@@ -134,41 +94,40 @@ if(keyword === ""){
   return;
 }
 
-const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHurVp3MKLNA0mvWeNfN4IH8O05dCo-kc52FtiT7f_n0cpZum9mQ1VCLNObhkm0rpkgzwFPJPrRwY_/pub?gid=0&single=true&output=csv";
+document.getElementById("result").innerHTML = "<div class='loading'>Sedang memuat data...</div>";
+
+try{
 
 const response = await fetch(url);
-const data = await response.text();
+const csv = await response.text();
 
-const rows = data.split(/\r?\n/).map(row =>
-  row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g)
-);
+const parsed = Papa.parse(csv, { skipEmptyLines: true });
+const rows = parsed.data;
 
 let found = false;
 let html = "";
 
-for (let i = 1; i < rows.length; i++) {
+for(let i=1; i<rows.length; i++){
 
-  if (!rows[i] || rows[i].length < 19) continue;
+  const nomorPermintaan = rows[i][5]?.toString().trim().toLowerCase();
 
-  const nomorPermintaan = rows[i][5]?.replace(/"/g, "").trim().toLowerCase();
-
-  if (nomorPermintaan === keyword) {
+  if(nomorPermintaan === keyword){
 
     found = true;
 
-    const nama        = rows[i][1]?.replace(/"/g, "") || "-";
-    const nomor       = rows[i][5]?.replace(/"/g, "") || "-";
-    const jumlah      = rows[i][6]?.replace(/"/g, "") || "-";
-    const jenisUji    = rows[i][7]?.replace(/"/g, "") || "-";
-    const tglBayar    = rows[i][11]?.replace(/"/g, "") || "-";
-    const penyiapan   = rows[i][12]?.replace(/"/g, "") || "-";
-    const pengujian   = rows[i][13]?.replace(/"/g, "") || "-";
-    const subkontrak  = rows[i][14]?.replace(/"/g, "") || "-";
-    const buatLhp     = rows[i][15]?.replace(/"/g, "") || "-";
-    const lhpTerbit   = rows[i][16]?.replace(/"/g, "") || "-";
-    const tglTerbit   = rows[i][17]?.replace(/"/g, "") || "-";
-    const estimasi    = rows[i][18]?.replace(/"/g, "") || "-";
-    const keterangan  = rows[i][19]?.replace(/"/g, "") || "-";
+    const nama        = rows[i][1] || "-";
+    const nomor       = rows[i][5] || "-";
+    const jumlah      = rows[i][6] || "-";
+    const jenisUji    = rows[i][7] || "-";
+    const tglBayar    = rows[i][11] || "-";
+    const penyiapan   = rows[i][12] || "-";
+    const pengujian   = rows[i][13] || "-";
+    const subkontrak  = rows[i][14] || "-";
+    const buatLhp     = rows[i][15] || "-";
+    const lhpTerbit   = rows[i][16] || "-";
+    const tglTerbit   = rows[i][17] || "-";
+    const estimasi    = rows[i][18] || "-";
+    const keterangan  = rows[i][19] || "-";
 
     html = `
     <div class="table-wrapper">
@@ -210,13 +169,19 @@ for (let i = 1; i < rows.length; i++) {
   }
 }
 
-if (!found) {
+if(!found){
   html = "<div class='notfound'>Data tidak ditemukan</div>";
 }
 
 document.getElementById("result").innerHTML = html;
 
+}catch(error){
+  document.getElementById("result").innerHTML =
+  "<div class='notfound'>Terjadi kesalahan mengambil data</div>";
 }
+
+}
+
 </script>
 
 </body>
