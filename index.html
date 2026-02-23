@@ -80,7 +80,7 @@ tr:hover{background:#f2f6fb;}
 
 const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHurVp3MKLNA0mvWeNfN4IH8O05dCo-kc52FtiT7f_n0cpZum9mQ1VCLNObhkm0rpkgzwFPJPrRwY_/pub?gid=0&single=true&output=csv";
 
-// tekan ENTER untuk cari
+// ENTER untuk cari
 document.getElementById("searchInput").addEventListener("keypress", function(e){
   if(e.key === "Enter") searchData();
 });
@@ -101,33 +101,40 @@ try{
 const response = await fetch(url);
 const csv = await response.text();
 
-const parsed = Papa.parse(csv, { skipEmptyLines: true });
+// 🔥 PAKAI HEADER TRUE (ANTI GESER)
+const parsed = Papa.parse(csv, { 
+  header: true,
+  skipEmptyLines: true 
+});
+
 const rows = parsed.data;
 
 let found = false;
 let html = "";
 
-for(let i=1; i<rows.length; i++){
+for(let i=0; i<rows.length; i++){
 
-  const nomorPermintaan = rows[i][5]?.toString().trim().toLowerCase();
+  const row = rows[i];
+
+  const nomorPermintaan = row["NOMOR PERMINTAAN"]?.toString().trim().toLowerCase();
 
   if(nomorPermintaan === keyword){
 
     found = true;
 
-    const nama        = rows[i][1] || "-";
-    const nomor       = rows[i][5] || "-";
-    const jumlah      = rows[i][6] || "-";
-    const jenisUji    = rows[i][7] || "-";
-    const tglBayar    = rows[i][11] || "-";
-    const penyiapan   = rows[i][12] || "-";
-    const pengujian   = rows[i][13] || "-";
-    const subkontrak  = rows[i][14] || "-";
-    const buatLhp     = rows[i][15] || "-";
-    const lhpTerbit   = rows[i][16] || "-";
-    const tglTerbit   = rows[i][17] || "-";
-    const estimasi    = rows[i][18] || "-";
-    const keterangan  = rows[i][21] || "-";
+    const nama        = row["NAMA PELANGGAN"] || "-";
+    const nomor       = row["NOMOR PERMINTAAN"] || "-";
+    const jumlah      = row["JUMLAH SAMPEL"] || "-";
+    const jenisUji    = row["JENIS PENGUJIAN"] || "-";
+    const tglBayar    = row["TGL BAYAR"] || "-";
+    const penyiapan   = row["PENYIAPAN"] || "-";
+    const pengujian   = row["PENGUJIAN"] || "-";
+    const subkontrak  = row["SUBKONTRAK"] || "-";
+    const buatLhp     = row["PEMBUATAN LHP"] || "-";
+    const lhpTerbit   = row["LHP TERBIT"] || "-";
+    const tglTerbit   = row["TGL TERBIT"] || "-";
+    const estimasi    = row["ESTIMASI"] || "-";
+    const keterangan  = row["KETERANGAN"] || "-";
 
     html = `
     <div class="table-wrapper">
