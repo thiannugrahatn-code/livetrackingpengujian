@@ -146,15 +146,29 @@ const rows = data.split(/\r?\n/).map(row =>
 let found = false;
 let html = "";
 
-for(let i=1;i<rows.length;i++){
+for (let i = 1; i < rows.length; i++) {
 
-  if(!rows[i]) continue;
+  if (!rows[i] || rows[i].length < 19) continue;
 
-  const nomorPermintaan = rows[i][5]?.replace(/"/g,"").trim().toLowerCase();
+  const nomorPermintaan = rows[i][5]?.replace(/"/g, "").trim().toLowerCase();
 
-  if(nomorPermintaan == keyword){
+  if (nomorPermintaan === keyword) {
 
     found = true;
+
+    const nama        = rows[i][1]?.replace(/"/g, "") || "-";
+    const nomor       = rows[i][5]?.replace(/"/g, "") || "-";
+    const jumlah      = rows[i][6]?.replace(/"/g, "") || "-";
+    const jenisUji    = rows[i][7]?.replace(/"/g, "") || "-";
+    const tglBayar    = rows[i][11]?.replace(/"/g, "") || "-";
+    const penyiapan   = rows[i][12]?.replace(/"/g, "") || "-";
+    const pengujian   = rows[i][13]?.replace(/"/g, "") || "-";
+    const subkontrak  = rows[i][14]?.replace(/"/g, "") || "-";
+    const buatLhp     = rows[i][15]?.replace(/"/g, "") || "-";
+    const lhpTerbit   = rows[i][16]?.replace(/"/g, "") || "-";
+    const tglTerbit   = rows[i][17]?.replace(/"/g, "") || "-";
+    const estimasi    = rows[i][18]?.replace(/"/g, "") || "-";
+    const keterangan  = rows[i][19]?.replace(/"/g, "") || "-";
 
     html = `
     <div class="table-wrapper">
@@ -175,19 +189,19 @@ for(let i=1;i<rows.length;i++){
         <th>KETERANGAN</th>
       </tr>
       <tr>
-        <td>${rows[i][1]?.replace(/"/g,"")}</td>
-        <td>${rows[i][5]?.replace(/"/g,"")}</td>
-        <td>${rows[i][6]?.replace(/"/g,"")}</td>
-        <td>${rows[i][7]?.replace(/"/g,"")}</td>
-        <td>${rows[i][11]?.replace(/"/g,"")}</td>
-        <td>${rows[i][12]?.replace(/"/g,"")}</td>
-        <td>${rows[i][13]?.replace(/"/g,"")}</td>
-        <td>${rows[i][14]?.replace(/"/g,"")}</td>
-        <td>${rows[i][15]?.replace(/"/g,"")}</td>
-        <td>${rows[i][16]?.replace(/"/g,"")}</td>
-        <td>${rows[i][17]?.replace(/"/g,"")}</td>
-        <td>${rows[i][18]?.replace(/"/g,"")}</td>
-        <td>${rows[i][21]?.replace(/"/g,"")}</td>
+        <td>${nama}</td>
+        <td>${nomor}</td>
+        <td>${jumlah}</td>
+        <td>${jenisUji}</td>
+        <td>${tglBayar}</td>
+        <td>${penyiapan}</td>
+        <td>${pengujian}</td>
+        <td>${subkontrak}</td>
+        <td>${buatLhp}</td>
+        <td>${lhpTerbit}</td>
+        <td>${tglTerbit}</td>
+        <td>${estimasi}</td>
+        <td>${keterangan}</td>
       </tr>
     </table>
     </div>
@@ -196,7 +210,7 @@ for(let i=1;i<rows.length;i++){
   }
 }
 
-if(!found){
+if (!found) {
   html = "<div class='notfound'>Data tidak ditemukan</div>";
 }
 
