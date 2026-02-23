@@ -1,16 +1,18 @@
 <script>
 
-const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHurVp3MKLNA0mvWeNfN4IH8O05dCo-kc52FtiT7f_n0cpZum9mQ1VCLNObhkm0rpkgzwFPJPrRwY_/pub?gid=0&single=true&output=csv";
+document.addEventListener("DOMContentLoaded", function(){
 
-document.getElementById("searchInput").addEventListener("keypress", function(e){
-  if(e.key === "Enter") searchData();
-});
+const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHurVp3MKLNA0mvWeNfN4IH8O05dCo-kc52FtiT7f_n0cpZum9mQ1VCLNObhkm0rpkgzwFPJPrRwY_/pub?gid=0&single=true&output=csv";
 
 function normalize(str){
   return String(str || "").trim().toLowerCase();
 }
 
-async function searchData(){
+document.getElementById("searchInput").addEventListener("keypress", function(e){
+  if(e.key === "Enter") searchData();
+});
+
+window.searchData = async function(){
 
 const keyword = normalize(document.getElementById("searchInput").value);
 
@@ -19,7 +21,8 @@ if(!keyword){
   return;
 }
 
-document.getElementById("result").innerHTML = "<div class='loading'>Sedang memuat data...</div>";
+document.getElementById("result").innerHTML =
+"<div class='loading'>Sedang memuat data...</div>";
 
 try{
 
@@ -39,26 +42,23 @@ if(rows.length < 2){
   return;
 }
 
-// 🔥 Ambil header dari baris pertama
 const headers = rows[0].map(h => normalize(h));
 
-// 🔥 Cari index kolom Nomor Permintaan
-const nomorIndex = headers.findIndex(h => 
+const nomorIndex = headers.findIndex(h =>
   h.replace(/\s/g,'') === "nomorpermintaan"
 );
 
 if(nomorIndex === -1){
   document.getElementById("result").innerHTML =
   "<div class='notfound'>Kolom Nomor Permintaan tidak ditemukan</div>";
-  console.log("HEADER TERBACA:", headers);
+  console.log("HEADER:", headers);
   return;
 }
 
 let found = false;
 let html = "";
 
-// 🔥 Loop mulai dari baris ke-2 (index 1)
-for(let i = 1; i < rows.length; i++){
+for(let i=1; i<rows.length; i++){
 
   const row = rows[i];
   const nomor = normalize(row[nomorIndex]);
@@ -96,5 +96,7 @@ document.getElementById("result").innerHTML = html;
 }
 
 }
+
+});
 
 </script>
