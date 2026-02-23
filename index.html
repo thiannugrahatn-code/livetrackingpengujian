@@ -96,9 +96,10 @@ const parsed = Papa.parse(csv, {
   header: true,
   skipEmptyLines: true 
 });
-
+console.log("HASIL PARSE:", parsed);
 const rows = parsed.data;
-
+console.log("ROWS:", rows);
+  
 if(rows.length === 0){
   document.getElementById("result").innerHTML =
   "<div class='notfound'>Sheet kosong</div>";
