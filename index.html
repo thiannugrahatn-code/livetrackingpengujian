@@ -1,81 +1,3 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tracking Permintaan Pengujian</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-
-body{
-  background: linear-gradient(135deg, #0b5394, #073763);
-  display:flex;justify-content:center;align-items:center;
-  min-height:100vh;padding:20px;
-}
-
-.container{
-  background:white;padding:40px;border-radius:20px;
-  width:100%;max-width:1200px;
-  box-shadow:0 20px 40px rgba(0,0,0,0.2);
-  text-align:center;
-}
-
-.logo{width:110px;margin-bottom:15px;}
-
-h2{color:#0b5394;margin-bottom:25px;font-weight:600;}
-
-.search-box{margin-bottom:30px;}
-
-input{
-  padding:14px 20px;width:60%;
-  border-radius:40px;border:1px solid #ccc;
-  outline:none;font-size:14px;
-}
-
-button{
-  padding:14px 30px;border:none;border-radius:40px;
-  background:#0b5394;color:white;font-weight:500;
-  cursor:pointer;margin-left:10px;
-}
-
-button:hover{background:#073763;}
-
-.table-wrapper{overflow-x:auto;}
-
-table{
-  width:100%;border-collapse:collapse;
-  margin-top:20px;font-size:13px;
-}
-
-th{background:#0b5394;color:white;padding:12px;}
-td{padding:10px;border-bottom:1px solid #eee;}
-tr:hover{background:#f2f6fb;}
-
-.notfound{margin-top:20px;color:red;font-weight:500;}
-.loading{margin-top:20px;color:#0b5394;font-weight:500;}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-<img src="logofix_bpmkp.png" class="logo">
-<h2>Tracking Status Permintaan Pengujian</h2>
-
-<div class="search-box">
-<input type="text" id="searchInput" placeholder="Masukkan Nomor Permintaan">
-<button onclick="searchData()">Cari</button>
-</div>
-
-<div id="result"></div>
-
-</div>
-
 <script>
 
 const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHurVp3MKLNA0mvWeNfN4IH8O05dCo-kc52FtiT7f_n0cpZum9mQ1VCLNObhkm0rpkgzwFPJPrRwY_/pub?gid=0&single=true&output=csv";
@@ -85,9 +7,14 @@ document.getElementById("searchInput").addEventListener("keypress", function(e){
   if(e.key === "Enter") searchData();
 });
 
+// Normalisasi string (anti spasi & beda huruf)
+function normalize(str){
+  return str?.toString().trim().toLowerCase();
+}
+
 async function searchData(){
 
-const keyword = document.getElementById("searchInput").value.trim().toLowerCase();
+const keyword = normalize(document.getElementById("searchInput").value);
 
 if(keyword === ""){
   alert("Masukkan Nomor Permintaan terlebih dahulu");
@@ -101,7 +28,6 @@ try{
 const response = await fetch(url);
 const csv = await response.text();
 
-// 🔥 PAKAI HEADER TRUE (ANTI GESER)
 const parsed = Papa.parse(csv, { 
   header: true,
   skipEmptyLines: true 
@@ -109,32 +35,26 @@ const parsed = Papa.parse(csv, {
 
 const rows = parsed.data;
 
+// 🔥 NORMALISASI HEADER OTOMATIS
+const cleanRows = rows.map(row => {
+  const newRow = {};
+  Object.keys(row).forEach(key => {
+    const cleanKey = normalize(key);
+    newRow[cleanKey] = row[key];
+  });
+  return newRow;
+});
+
 let found = false;
 let html = "";
 
-for(let i=0; i<rows.length; i++){
+for(let row of cleanRows){
 
-  const row = rows[i];
-
-  const nomorPermintaan = row["NOMOR PERMINTAAN"]?.toString().trim().toLowerCase();
+  const nomorPermintaan = normalize(row["nomor permintaan"]);
 
   if(nomorPermintaan === keyword){
 
     found = true;
-
-    const nama        = row["NAMA PELANGGAN"] || "-";
-    const nomor       = row["NOMOR PERMINTAAN"] || "-";
-    const jumlah      = row["JUMLAH SAMPEL"] || "-";
-    const jenisUji    = row["JENIS PENGUJIAN"] || "-";
-    const tglBayar    = row["TGL BAYAR"] || "-";
-    const penyiapan   = row["PENYIAPAN"] || "-";
-    const pengujian   = row["PENGUJIAN"] || "-";
-    const subkontrak  = row["SUBKONTRAK"] || "-";
-    const buatLhp     = row["PEMBUATAN LHP"] || "-";
-    const lhpTerbit   = row["LHP TERBIT"] || "-";
-    const tglTerbit   = row["TGL TERBIT"] || "-";
-    const estimasi    = row["ESTIMASI"] || "-";
-    const keterangan  = row["KETERANGAN"] || "-";
 
     html = `
     <div class="table-wrapper">
@@ -155,19 +75,19 @@ for(let i=0; i<rows.length; i++){
         <th>KETERANGAN</th>
       </tr>
       <tr>
-        <td>${nama}</td>
-        <td>${nomor}</td>
-        <td>${jumlah}</td>
-        <td>${jenisUji}</td>
-        <td>${tglBayar}</td>
-        <td>${penyiapan}</td>
-        <td>${pengujian}</td>
-        <td>${subkontrak}</td>
-        <td>${buatLhp}</td>
-        <td>${lhpTerbit}</td>
-        <td>${tglTerbit}</td>
-        <td>${estimasi}</td>
-        <td>${keterangan}</td>
+        <td>${row["nama pelanggan"] || "-"}</td>
+        <td>${row["nomor permintaan"] || "-"}</td>
+        <td>${row["jumlah sampel"] || "-"}</td>
+        <td>${row["jenis pengujian"] || "-"}</td>
+        <td>${row["tgl bayar"] || "-"}</td>
+        <td>${row["penyiapan"] || "-"}</td>
+        <td>${row["pengujian"] || "-"}</td>
+        <td>${row["subkontrak"] || "-"}</td>
+        <td>${row["pembuatan lhp"] || "-"}</td>
+        <td>${row["lhp terbit"] || "-"}</td>
+        <td>${row["tgl terbit"] || "-"}</td>
+        <td>${row["estimasi"] || "-"}</td>
+        <td>${row["keterangan"] || "-"}</td>
       </tr>
     </table>
     </div>
@@ -190,6 +110,3 @@ document.getElementById("result").innerHTML = html;
 }
 
 </script>
-
-</body>
-</html>
