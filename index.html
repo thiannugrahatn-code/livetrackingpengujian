@@ -6,45 +6,104 @@
 <title>Tracking Permintaan Pengujian</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins', sans-serif;
+}
+
 body{
   background: linear-gradient(135deg, #0b5394, #073763);
-  display:flex;justify-content:center;align-items:center;
-  min-height:100vh;padding:20px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  padding:20px;
 }
+
 .container{
-  background:white;padding:40px;border-radius:20px;
-  width:100%;max-width:1200px;
+  background:white;
+  padding:40px;
+  border-radius:20px;
+  width:100%;
+  max-width:1200px;
   box-shadow:0 20px 40px rgba(0,0,0,0.2);
   text-align:center;
 }
-.logo{width:110px;margin-bottom:15px;}
-h2{color:#0b5394;margin-bottom:25px;font-weight:600;}
-.search-box{margin-bottom:30px;}
+
+.logo{
+  width:110px;
+  margin-bottom:15px;
+}
+
+h2{
+  color:#0b5394;
+  margin-bottom:25px;
+  font-weight:600;
+}
+
+.search-box{
+  margin-bottom:30px;
+}
+
 input{
-  padding:14px 20px;width:60%;
-  border-radius:40px;border:1px solid #ccc;
-  outline:none;font-size:14px;
+  padding:14px 20px;
+  width:60%;
+  border-radius:40px;
+  border:1px solid #ccc;
+  outline:none;
+  font-size:14px;
 }
+
 button{
-  padding:14px 30px;border:none;border-radius:40px;
-  background:#0b5394;color:white;font-weight:500;
-  cursor:pointer;margin-left:10px;
+  padding:14px 30px;
+  border:none;
+  border-radius:40px;
+  background:#0b5394;
+  color:white;
+  font-weight:500;
+  cursor:pointer;
+  margin-left:10px;
 }
-button:hover{background:#073763;}
-.table-wrapper{overflow-x:auto;}
+
+button:hover{
+  background:#073763;
+}
+
+.table-wrapper{
+  overflow-x:auto;
+}
+
 table{
-  width:100%;border-collapse:collapse;
-  margin-top:20px;font-size:13px;
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+  font-size:13px;
 }
-th{background:#0b5394;color:white;padding:12px;}
-td{padding:10px;border-bottom:1px solid #eee;}
-tr:hover{background:#f2f6fb;}
-.notfound{margin-top:20px;color:red;font-weight:500;}
-.loading{margin-top:20px;color:#0b5394;font-weight:500;}
+
+th{
+  background:#0b5394;
+  color:white;
+  padding:12px;
+}
+
+td{
+  padding:10px;
+  border-bottom:1px solid #eee;
+}
+
+tr:hover{
+  background:#f2f6fb;
+}
+
+.notfound{
+  margin-top:20px;
+  color:red;
+  font-weight:500;
+}
 </style>
 </head>
 
@@ -53,6 +112,7 @@ tr:hover{background:#f2f6fb;}
 <div class="container">
 
 <img src="logofix_bpmkp.png" class="logo">
+
 <h2>Tracking Status Permintaan Pengujian</h2>
 
 <div class="search-box">
@@ -65,83 +125,83 @@ tr:hover{background:#f2f6fb;}
 </div>
 
 <script>
-
-const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHurVp3MKLNA0mvWeNfN4IH8O05dCo-kc52FtiT7f_n0cpZum9mQ1VCLNObhkm0rpkgzwFPJPrRwY_/pub?gid=0&single=true&output=csv";
-
-function normalize(str){
-  return String(str || "").trim().toLowerCase();
-}
-
-document.getElementById("searchInput").addEventListener("keypress", function(e){
-  if(e.key === "Enter") searchData();
-});
-
 async function searchData(){
 
-const keyword = normalize(document.getElementById("searchInput").value);
+const keyword = document.getElementById("searchInput").value.trim().toLowerCase();
 
-if(!keyword){
+if(keyword === ""){
   alert("Masukkan Nomor Permintaan terlebih dahulu");
   return;
 }
 
-document.getElementById("result").innerHTML =
-"<div class='loading'>Sedang memuat data...</div>";
-
-try{
+const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHurVp3MKLNA0mvWeNfN4IH8O05dCo-kc52FtiT7f_n0cpZum9mQ1VCLNObhkm0rpkgzwFPJPrRwY_/pub?gid=0&single=true&output=csv";
 
 const response = await fetch(url);
-const csv = await response.text();
+const data = await response.text();
 
-const parsed = Papa.parse(csv, { 
-  header: false,
-  skipEmptyLines: true 
-});
-
-const rows = parsed.data;
-
-if(rows.length < 2){
-  document.getElementById("result").innerHTML =
-  "<div class='notfound'>Sheet kosong atau tidak valid</div>";
-  return;
-}
-
-// Ambil header
-const headers = rows[0].map(h => normalize(h));
-
-// Cari kolom Nomor Permintaan
-const nomorIndex = headers.findIndex(h =>
-  h.replace(/\s/g,'') === "nomorpermintaan"
+const rows = data.split(/\r?\n/).map(row =>
+  row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g)
 );
-
-if(nomorIndex === -1){
-  document.getElementById("result").innerHTML =
-  "<div class='notfound'>Kolom Nomor Permintaan tidak ditemukan</div>";
-  console.log("HEADER TERBACA:", headers);
-  return;
-}
 
 let found = false;
 let html = "";
 
-// Loop mulai baris ke-2
-for(let i = 1; i < rows.length; i++){
+for (let i = 1; i < rows.length; i++) {
 
-  const row = rows[i];
-  const nomor = normalize(row[nomorIndex]);
+  if (!rows[i] || rows[i].length < 19) continue;
 
-  if(nomor.includes(keyword)){
+  const nomorPermintaan = rows[i][5]?.replace(/"/g, "").trim().toLowerCase();
+
+  if (nomorPermintaan === keyword) {
 
     found = true;
+
+    const nama        = rows[i][1]?.replace(/"/g, "") || "-";
+    const nomor       = rows[i][5]?.replace(/"/g, "") || "-";
+    const jumlah      = rows[i][6]?.replace(/"/g, "") || "-";
+    const jenisUji    = rows[i][7]?.replace(/"/g, "") || "-";
+    const tglBayar    = rows[i][11]?.replace(/"/g, "") || "-";
+    const penyiapan   = rows[i][12]?.replace(/"/g, "") || "-";
+    const pengujian   = rows[i][13]?.replace(/"/g, "") || "-";
+    const subkontrak  = rows[i][14]?.replace(/"/g, "") || "-";
+    const buatLhp     = rows[i][15]?.replace(/"/g, "") || "-";
+    const lhpTerbit   = rows[i][16]?.replace(/"/g, "") || "-";
+    const tglTerbit   = rows[i][17]?.replace(/"/g, "") || "-";
+    const estimasi    = rows[i][18]?.replace(/"/g, "") || "-";
+    const keterangan  = rows[i][19]?.replace(/"/g, "") || "-";
 
     html = `
     <div class="table-wrapper">
     <table>
       <tr>
-        ${rows[0].map(h => `<th>${h}</th>`).join("")}
+        <th>NAMA PELANGGAN</th>
+        <th>NOMOR PERMINTAAN</th>
+        <th>JUMLAH SAMPEL</th>
+        <th>JENIS PENGUJIAN</th>
+        <th>TGL BAYAR</th>
+        <th>PENYIAPAN</th>
+        <th>PENGUJIAN</th>
+        <th>SUBKONTRAK</th>
+        <th>PEMBUATAN LHP</th>
+        <th>LHP TERBIT</th>
+        <th>TGL TERBIT</th>
+        <th>ESTIMASI</th>
+        <th>KETERANGAN</th>
       </tr>
       <tr>
-        ${row.map(cell => `<td>${cell || "-"}</td>`).join("")}
+        <td>${nama}</td>
+        <td>${nomor}</td>
+        <td>${jumlah}</td>
+        <td>${jenisUji}</td>
+        <td>${tglBayar}</td>
+        <td>${penyiapan}</td>
+        <td>${pengujian}</td>
+        <td>${subkontrak}</td>
+        <td>${buatLhp}</td>
+        <td>${lhpTerbit}</td>
+        <td>${tglTerbit}</td>
+        <td>${estimasi}</td>
+        <td>${keterangan}</td>
       </tr>
     </table>
     </div>
@@ -150,20 +210,13 @@ for(let i = 1; i < rows.length; i++){
   }
 }
 
-if(!found){
+if (!found) {
   html = "<div class='notfound'>Data tidak ditemukan</div>";
 }
 
 document.getElementById("result").innerHTML = html;
 
-}catch(error){
-  console.error(error);
-  document.getElementById("result").innerHTML =
-  "<div class='notfound'>Terjadi kesalahan mengambil data</div>";
 }
-
-}
-
 </script>
 
 </body>
